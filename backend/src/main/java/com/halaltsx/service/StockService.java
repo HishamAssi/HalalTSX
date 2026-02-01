@@ -3,6 +3,7 @@ package com.halaltsx.service;
 import com.halaltsx.dto.DataFreshness;
 import com.halaltsx.dto.SectorDto;
 import com.halaltsx.dto.SectorListResponse;
+import com.halaltsx.dto.StockDetailDto;
 import com.halaltsx.dto.StockDto;
 import com.halaltsx.dto.StockListResponse;
 import com.halaltsx.dto.StockSummaryDto;
@@ -85,6 +86,14 @@ public class StockService {
                 .orElseThrow(() -> new EntityNotFoundException("Stock not found: " + symbol));
 
         return StockDto.fromEntity(stock);
+    }
+
+    @Transactional(readOnly = true)
+    public StockDetailDto getStockDetail(String symbol) {
+        Stock stock = stockRepository.findBySymbolWithCompliance(symbol)
+                .orElseThrow(() -> new EntityNotFoundException("Stock not found: " + symbol));
+
+        return StockDetailDto.fromEntity(stock);
     }
 
     @Transactional(readOnly = true)
