@@ -1,23 +1,55 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useStocks } from '@/hooks/useStocks';
+import { useSectors } from '@/hooks/useSectors';
 import { usePriceUpdates } from '@/hooks/usePriceUpdates';
 import StockList from '@/components/StockList/StockList';
-import { StockFilters } from '@/types';
+import SearchFilter from '@/components/SearchFilter/SearchFilter';
+import { StockFilters, ComplianceStatus } from '@/types';
 
 export default function HomePage() {
   const [filters, setFilters] = useState<StockFilters>({
     page: 0,
     size: 20,
     compliance: 'ALL',
+    search: '',
+    sector: '',
   });
 
   const { data, isLoading, error, isFetching } = useStocks(filters);
+  const { data: sectors = [], isLoading: sectorsLoading } = useSectors();
 
   usePriceUpdates(true);
 
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
+
+  const handleSearchChange = useCallback((search: string) => {
+    setFilters((prev) => ({ ...prev, search, page: 0 }));
+  }, []);
+
+  const handleComplianceChange = useCallback((compliance: ComplianceStatus | 'ALL') => {
+    setFilters((prev) => ({ ...prev, compliance, page: 0 }));
+  }, []);
+
+  const handleSectorChange = useCallback((sector: string) => {
+    setFilters((prev) => ({ ...prev, sector, page: 0 }));
+  }, []);
+
+  const handleClearAll = useCallback(() => {
+    setFilters({
+      page: 0,
+      size: 20,
+      compliance: 'ALL',
+      search: '',
+      sector: '',
+    });
+  }, []);
+
+  const hasActiveFilters =
+    filters.search !== '' ||
+    filters.compliance !== 'ALL' ||
+    filters.sector !== '';
 
   if (error) {
     return (
@@ -48,6 +80,19 @@ export default function HomePage() {
           Find Shariah-compliant investment opportunities on the Toronto Stock Exchange
         </p>
       </div>
+
+      <SearchFilter
+        search={filters.search || ''}
+        onSearchChange={handleSearchChange}
+        compliance={filters.compliance || 'ALL'}
+        onComplianceChange={handleComplianceChange}
+        sector={filters.sector || ''}
+        onSectorChange={handleSectorChange}
+        sectors={sectors}
+        sectorsLoading={sectorsLoading}
+        onClearAll={handleClearAll}
+        hasActiveFilters={hasActiveFilters}
+      />
 
       {data?.dataFreshness?.isStale && (
         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">

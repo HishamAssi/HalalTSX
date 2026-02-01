@@ -1,0 +1,587 @@
+openapi: 3.0.3
+info:
+  title: Halal TSX Stock Screener API
+  description: API for viewing, filtering, and analyzing Halal-compliant stocks from the Toronto Stock Exchange
+  version: 1.0.0
+  contact:
+    name: HalalTSX
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+  - url: https://api.halaltsx.com/v1
+    description: Production server
+
+tags:
+  - name: Stocks
+    description: Stock listing and search operations
+  - name: Compliance
+    description: Halal compliance screening information
+  - name: Education
+    description: Educational content about Halal investing
+
+paths:
+  /stocks:
+    get:
+      tags:
+        - Stocks
+      summary: List all stocks
+      description: Returns a paginated list of TSX stocks with basic information and compliance status
+      operationId: getStocks
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: search
+          in: query
+          description: Search by stock name or ticker symbol
+          schema:
+            type: string
+        - name: compliance
+          in: query
+          description: Filter by compliance status
+          schema:
+            type: string
+            enum: [ALL, COMPLIANT, NON_COMPLIANT, UNABLE_TO_VERIFY]
+            default: ALL
+        - name: sector
+          in: query
+          description: Filter by market sector
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort field
+          schema:
+            type: string
+            enum: [name, symbol, price, marketCap, sector]
+            default: name
+        - name: direction
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockListResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /stocks/{symbol}:
+    get:
+      tags:
+        - Stocks
+      summary: Get stock details
+      description: Returns detailed information about a specific stock including price history
+      operationId: getStockBySymbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Stock ticker symbol (e.g., "RY.TO")
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockDetailResponse'
+        '404':
+          description: Stock not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /stocks/{symbol}/price-history:
+    get:
+      tags:
+        - Stocks
+      summary: Get stock price history
+      description: Returns historical price data for charting
+      operationId: getStockPriceHistory
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Stock ticker symbol
+          schema:
+            type: string
+        - name: period
+          in: query
+          description: Time period for history
+          schema:
+            type: string
+            enum: [1M, 3M, 6M, 1Y, 5Y]
+            default: 1Y
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceHistoryResponse'
+        '404':
+          description: Stock not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /stocks/{symbol}/compliance:
+    get:
+      tags:
+        - Compliance
+      summary: Get compliance details
+      description: Returns detailed Halal compliance screening breakdown for a stock
+      operationId: getStockCompliance
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Stock ticker symbol
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceDetailResponse'
+        '404':
+          description: Stock not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /sectors:
+    get:
+      tags:
+        - Stocks
+      summary: List available sectors
+      description: Returns list of market sectors for filtering
+      operationId: getSectors
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectorListResponse'
+
+  /education/criteria:
+    get:
+      tags:
+        - Education
+      summary: Get screening criteria explanations
+      description: Returns educational content explaining Halal screening criteria
+      operationId: getScreeningCriteria
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationResponse'
+
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health check
+      description: Returns API health status and data freshness information
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    StockSummary:
+      type: object
+      required:
+        - id
+        - symbol
+        - name
+        - currentPrice
+        - complianceStatus
+        - priceUpdatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique stock identifier
+        symbol:
+          type: string
+          description: TSX ticker symbol
+          example: "RY.TO"
+        name:
+          type: string
+          description: Company name
+          example: "Royal Bank of Canada"
+        sector:
+          type: string
+          description: Market sector
+          example: "Financials"
+        currentPrice:
+          type: number
+          format: decimal
+          description: Current stock price in CAD
+          example: 145.23
+        priceChange:
+          type: number
+          format: decimal
+          description: Price change from previous close
+          example: 2.15
+        priceChangePercent:
+          type: number
+          format: decimal
+          description: Percentage price change
+          example: 1.50
+        marketCap:
+          type: number
+          format: decimal
+          description: Market capitalization in CAD
+          example: 203500000000
+        complianceStatus:
+          type: string
+          enum: [COMPLIANT, NON_COMPLIANT, UNABLE_TO_VERIFY]
+          description: Overall Halal compliance status
+        requiresPurification:
+          type: boolean
+          description: Whether dividend purification is required
+        priceUpdatedAt:
+          type: string
+          format: date-time
+          description: When price was last updated
+
+    StockDetail:
+      allOf:
+        - $ref: '#/components/schemas/StockSummary'
+        - type: object
+          properties:
+            subIndustry:
+              type: string
+              description: GICS sub-industry classification
+            compliance:
+              $ref: '#/components/schemas/ComplianceSummary'
+
+    ComplianceSummary:
+      type: object
+      required:
+        - status
+        - screenedAt
+      properties:
+        status:
+          type: string
+          enum: [COMPLIANT, NON_COMPLIANT, UNABLE_TO_VERIFY]
+        businessActivityCompliant:
+          type: boolean
+        debtRatioCompliant:
+          type: boolean
+        liquidityRatioCompliant:
+          type: boolean
+        incomeRatioCompliant:
+          type: boolean
+        requiresPurification:
+          type: boolean
+        purificationPercentage:
+          type: number
+          format: decimal
+        screenedAt:
+          type: string
+          format: date-time
+
+    ComplianceDetail:
+      type: object
+      required:
+        - stockSymbol
+        - status
+        - criteria
+        - screenedAt
+      properties:
+        stockSymbol:
+          type: string
+        status:
+          type: string
+          enum: [COMPLIANT, NON_COMPLIANT, UNABLE_TO_VERIFY]
+        criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceCriterion'
+        requiresPurification:
+          type: boolean
+        purificationPercentage:
+          type: number
+          format: decimal
+          description: Percentage of dividends to purify (0-100)
+        screenedAt:
+          type: string
+          format: date-time
+        dataSource:
+          type: string
+          description: Source of financial data
+
+    ComplianceCriterion:
+      type: object
+      required:
+        - name
+        - compliant
+      properties:
+        name:
+          type: string
+          enum: [BUSINESS_ACTIVITY, DEBT_RATIO, LIQUIDITY_RATIO, INCOME_RATIO]
+        displayName:
+          type: string
+          example: "Interest-Bearing Debt Ratio"
+        compliant:
+          type: boolean
+        value:
+          type: number
+          format: decimal
+          description: Calculated value (for ratio criteria)
+        threshold:
+          type: number
+          format: decimal
+          description: Maximum allowed threshold
+          example: 0.33
+        reason:
+          type: string
+          description: Explanation for non-compliance
+          example: "Company operates in conventional banking"
+
+    PricePoint:
+      type: object
+      required:
+        - date
+        - close
+      properties:
+        date:
+          type: string
+          format: date
+        open:
+          type: number
+          format: decimal
+        high:
+          type: number
+          format: decimal
+        low:
+          type: number
+          format: decimal
+        close:
+          type: number
+          format: decimal
+        volume:
+          type: integer
+          format: int64
+
+    Sector:
+      type: object
+      required:
+        - name
+        - stockCount
+      properties:
+        name:
+          type: string
+          example: "Information Technology"
+        stockCount:
+          type: integer
+          description: Number of stocks in this sector
+        compliantCount:
+          type: integer
+          description: Number of Halal-compliant stocks
+
+    ScreeningCriterion:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          example: "Debt Ratio"
+        description:
+          type: string
+          example: "Measures the proportion of interest-bearing debt relative to market capitalization"
+        threshold:
+          type: string
+          example: "< 33%"
+        rationale:
+          type: string
+          example: "Based on Islamic principles limiting excessive debt (riba)"
+        calculation:
+          type: string
+          example: "Interest-bearing debt / Trailing 12-month average market capitalization"
+
+    StockListResponse:
+      type: object
+      required:
+        - content
+        - page
+        - totalElements
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockSummary'
+        page:
+          type: integer
+          description: Current page number
+        size:
+          type: integer
+          description: Items per page
+        totalElements:
+          type: integer
+          format: int64
+          description: Total number of stocks
+        totalPages:
+          type: integer
+          description: Total number of pages
+        dataFreshness:
+          $ref: '#/components/schemas/DataFreshness'
+
+    StockDetailResponse:
+      type: object
+      required:
+        - stock
+      properties:
+        stock:
+          $ref: '#/components/schemas/StockDetail'
+        dataFreshness:
+          $ref: '#/components/schemas/DataFreshness'
+
+    PriceHistoryResponse:
+      type: object
+      required:
+        - symbol
+        - period
+        - prices
+      properties:
+        symbol:
+          type: string
+        period:
+          type: string
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricePoint'
+
+    ComplianceDetailResponse:
+      type: object
+      required:
+        - compliance
+      properties:
+        compliance:
+          $ref: '#/components/schemas/ComplianceDetail'
+
+    SectorListResponse:
+      type: object
+      required:
+        - sectors
+      properties:
+        sectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sector'
+
+    EducationResponse:
+      type: object
+      required:
+        - criteria
+      properties:
+        criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScreeningCriterion'
+        introduction:
+          type: string
+          description: Introduction to Halal investing
+        methodology:
+          type: string
+          description: Explanation of AAOIFI screening methodology
+
+    DataFreshness:
+      type: object
+      properties:
+        pricesUpdatedAt:
+          type: string
+          format: date-time
+        financialsUpdatedAt:
+          type: string
+          format: date-time
+        isStale:
+          type: boolean
+          description: True if data is older than acceptable threshold
+        message:
+          type: string
+          description: Human-readable freshness status
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [UP, DEGRADED, DOWN]
+        database:
+          type: string
+          enum: [UP, DOWN]
+        externalApi:
+          type: string
+          enum: [UP, DOWN]
+        lastPriceUpdate:
+          type: string
+          format: date-time
+        stockCount:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time

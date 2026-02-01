@@ -1,6 +1,8 @@
 package com.halaltsx.service;
 
 import com.halaltsx.dto.DataFreshness;
+import com.halaltsx.dto.SectorDto;
+import com.halaltsx.dto.SectorListResponse;
 import com.halaltsx.dto.StockDto;
 import com.halaltsx.dto.StockListResponse;
 import com.halaltsx.dto.StockSummaryDto;
@@ -37,15 +39,21 @@ public class StockService {
             String sector,
             Pageable pageable) {
 
-        Page<Stock> stockPage;
+        // Normalize empty strings to null for the query
+        String searchParam = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+        String sectorParam = (sector != null && !sector.trim().isEmpty()) ? sector.trim() : null;
 
-        if (search != null && !search.trim().isEmpty()) {
-            stockPage = stockRepository.searchBySymbolOrName(search.trim(), pageable);
-        } else if (sector != null && !sector.trim().isEmpty()) {
-            stockPage = stockRepository.findBySector(sector.trim(), pageable);
-        } else {
-            stockPage = stockRepository.findAllActive(pageable);
+        // Convert compliance filter string to enum
+        ComplianceResult.ScreeningStatus complianceStatus = null;
+        if (complianceFilter != null && !complianceFilter.equals("ALL") && !complianceFilter.trim().isEmpty()) {
+            try {
+                complianceStatus = ComplianceResult.ScreeningStatus.valueOf(complianceFilter.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid compliance filter value: {}", complianceFilter);
+            }
         }
+
+        Page<Stock> stockPage = stockRepository.findWithFilters(searchParam, sectorParam, complianceStatus, pageable);
 
         List<StockSummaryDto> stockDtos = stockPage.getContent().stream()
                 .map(stock -> {
@@ -54,12 +62,6 @@ public class StockService {
                     return StockSummaryDto.fromEntity(stock);
                 })
                 .collect(Collectors.toList());
-
-        if (complianceFilter != null && !complianceFilter.equals("ALL")) {
-            stockDtos = stockDtos.stream()
-                    .filter(dto -> dto.getComplianceStatus().equals(complianceFilter))
-                    .collect(Collectors.toList());
-        }
 
         Page<StockSummaryDto> resultPage = new PageImpl<>(
                 stockDtos,
@@ -88,6 +90,24 @@ public class StockService {
     @Transactional(readOnly = true)
     public List<String> getAllSectors() {
         return stockRepository.findAllSectors();
+    }
+
+    @Transactional(readOnly = true)
+    public SectorListResponse getSectorStats() {
+        List<Object[]> stats = stockRepository.findSectorStats();
+
+        List<SectorDto> sectors = stats.stream()
+                .map(row -> SectorDto.builder()
+                        .name((String) row[0])
+                        .stockCount((Long) row[1])
+                        .compliantCount((Long) row[2])
+                        .build())
+                .collect(Collectors.toList());
+
+        return SectorListResponse.builder()
+                .sectors(sectors)
+                .totalSectors(sectors.size())
+                .build();
     }
 
     @Transactional

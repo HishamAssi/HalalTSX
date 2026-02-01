@@ -73,7 +73,7 @@ export const stockApi = {
 
 export const sectorApi = {
   getSectors: async (): Promise<SectorListResponse> => {
-    const response = await apiClient.get<SectorListResponse>('/sectors');
+    const response = await apiClient.get<SectorListResponse>('/stocks/sectors');
     return response.data;
   },
 };

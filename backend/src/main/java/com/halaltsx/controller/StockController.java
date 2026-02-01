@@ -1,5 +1,6 @@
 package com.halaltsx.controller;
 
+import com.halaltsx.dto.SectorListResponse;
 import com.halaltsx.dto.StockDto;
 import com.halaltsx.dto.StockListResponse;
 import com.halaltsx.service.StockService;
@@ -64,6 +65,13 @@ public class StockController {
 
         StockDto stock = stockService.getStockBySymbol(symbol.toUpperCase());
         return ResponseEntity.ok(stock);
+    }
+
+    @GetMapping("/sectors")
+    @Operation(summary = "List all sectors", description = "Returns a list of all available sectors with stock counts")
+    public ResponseEntity<SectorListResponse> getSectors() {
+        SectorListResponse response = stockService.getSectorStats();
+        return ResponseEntity.ok(response);
     }
 
     private String mapSortField(String sort) {
