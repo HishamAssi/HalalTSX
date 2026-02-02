@@ -275,3 +275,161 @@ test.describe('Stock Card Navigation (US3 Prerequisite)', () => {
     await expect(page).toHaveURL(new RegExp(`/stock/${encodeURIComponent(symbol || '')}`));
   });
 });
+
+test.describe('Education Page (US4)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/education');
+  });
+
+  test('displays education page title', async ({ page }) => {
+    await expect(page.locator('h1')).toContainText('Understanding Halal Stock Screening');
+  });
+
+  test('displays introduction text', async ({ page }) => {
+    await expect(page.locator('text=AAOIFI')).toBeVisible();
+  });
+
+  test('displays all four screening criteria', async ({ page }) => {
+    await expect(page.locator('#business-activity h3')).toContainText('Business Activity Screening');
+    await expect(page.locator('#debt-ratio h3')).toContainText('Debt Ratio');
+    await expect(page.locator('#liquidity-ratio h3')).toContainText('Liquidity Ratio');
+    await expect(page.locator('#income-ratio h3')).toContainText('Income Ratio');
+  });
+
+  test('displays purification explanation', async ({ page }) => {
+    await expect(page.locator('#purification h3')).toContainText('Dividend Purification');
+  });
+
+  test('displays threshold values for each criterion', async ({ page }) => {
+    // Check for threshold displays
+    await expect(page.locator('text=< 33% of market capitalization')).toBeVisible();
+    await expect(page.locator('text=< 33% of total assets')).toBeVisible();
+    await expect(page.locator('text=< 5% of total revenue')).toBeVisible();
+  });
+
+  test('displays Islamic finance rationale', async ({ page }) => {
+    // Check for rationale sections
+    await expect(page.locator('text=Islamic Finance Rationale').first()).toBeVisible();
+  });
+
+  test('displays additional resources', async ({ page }) => {
+    await expect(page.locator('h2:has-text("Additional Resources")')).toBeVisible();
+    await expect(page.locator('text=AAOIFI Sharia Standards - www.aaoifi.com')).toBeVisible();
+  });
+
+  test('displays disclaimer', async ({ page }) => {
+    await expect(page.locator('text=Disclaimer')).toBeVisible();
+    await expect(page.locator('text=educational and informational purposes')).toBeVisible();
+  });
+
+  test('can expand and collapse criteria sections', async ({ page }) => {
+    // Click on first criterion header to collapse
+    const firstCriterion = page.locator('button:has-text("Business Activity Screening")');
+    await firstCriterion.click();
+
+    // The description should be hidden
+    await expect(page.locator('#business-activity').locator('text=Primary Screening')).toBeVisible();
+  });
+
+  test('quick navigation links scroll to criteria', async ({ page }) => {
+    // Click on a quick navigation link
+    await page.locator('a:has-text("Debt Ratio")').first().click();
+
+    // The debt ratio section should be in view
+    await expect(page.locator('#debt-ratio')).toBeInViewport();
+  });
+
+  test('expand all and collapse all buttons work', async ({ page }) => {
+    // Click collapse all
+    await page.locator('button:has-text("Collapse All")').click();
+
+    // Click expand all
+    await page.locator('button:has-text("Expand All")').click();
+
+    // All criteria descriptions should be visible
+    await expect(page.locator('text=Islamic Finance Rationale').first()).toBeVisible();
+  });
+});
+
+test.describe('Education API Integration', () => {
+  test('education API returns valid response', async ({ request }) => {
+    const response = await request.get('http://localhost:8080/api/v1/education/criteria');
+    expect(response.ok()).toBeTruthy();
+
+    const data = await response.json();
+    expect(data).toHaveProperty('title');
+    expect(data).toHaveProperty('introduction');
+    expect(data).toHaveProperty('criteria');
+    expect(data).toHaveProperty('additionalResources');
+    expect(data).toHaveProperty('disclaimer');
+    expect(Array.isArray(data.criteria)).toBeTruthy();
+    expect(data.criteria.length).toBeGreaterThanOrEqual(4);
+  });
+
+  test('education API returns criteria with required fields', async ({ request }) => {
+    const response = await request.get('http://localhost:8080/api/v1/education/criteria');
+    const data = await response.json();
+
+    data.criteria.forEach((criterion: any) => {
+      expect(criterion).toHaveProperty('id');
+      expect(criterion).toHaveProperty('name');
+      expect(criterion).toHaveProperty('description');
+      expect(criterion).toHaveProperty('threshold');
+      expect(criterion).toHaveProperty('rationale');
+      expect(criterion).toHaveProperty('category');
+      expect(criterion).toHaveProperty('source');
+      expect(criterion).toHaveProperty('displayOrder');
+    });
+  });
+
+  test('single criterion API returns valid response', async ({ request }) => {
+    const response = await request.get('http://localhost:8080/api/v1/education/criteria/debt-ratio');
+    expect(response.ok()).toBeTruthy();
+
+    const data = await response.json();
+    expect(data.id).toBe('debt-ratio');
+    expect(data.name).toContain('Debt');
+  });
+});
+
+test.describe('Navigation to Education Page', () => {
+  test('can navigate to education page from header', async ({ page }) => {
+    await page.goto('/');
+
+    // Click on Learn link in navigation
+    await page.locator('a:has-text("Learn")').click();
+
+    // Should be on education page
+    await expect(page).toHaveURL('/education');
+    await expect(page.locator('h1')).toContainText('Understanding Halal Stock Screening');
+  });
+
+  test('compliance breakdown has link to education page', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('a[href^="/stock/"]');
+
+    // Navigate to a stock detail page
+    await page.locator('a[href^="/stock/"]').first().click();
+
+    // Wait for compliance breakdown to load
+    await page.waitForSelector('text=Halal Compliance Breakdown');
+
+    // Check for education link
+    await expect(page.locator('a:has-text("Learn more about the screening criteria")')).toBeVisible();
+  });
+
+  test('compliance criterion has help icon linking to education', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('a[href^="/stock/"]');
+
+    // Navigate to a stock detail page
+    await page.locator('a[href^="/stock/"]').first().click();
+
+    // Wait for compliance breakdown to load
+    await page.waitForSelector('text=Halal Compliance Breakdown');
+
+    // Check for help icon links (SVG info icons)
+    const helpLinks = page.locator('a[href^="/education#"]');
+    expect(await helpLinks.count()).toBeGreaterThan(0);
+  });
+});

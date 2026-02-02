@@ -72,11 +72,15 @@ export interface Sector {
 
 // Education types
 export interface ScreeningCriterion {
+  id: string;
   name: string;
   description: string;
-  threshold?: string;
-  rationale?: string;
-  calculation?: string;
+  threshold: string;
+  thresholdValue?: number | null;
+  rationale: string;
+  category: string;
+  source: string;
+  displayOrder: number;
 }
 
 // API Response types
@@ -152,9 +156,11 @@ export interface SectorListResponse {
 }
 
 export interface EducationResponse {
+  title: string;
+  introduction: string;
   criteria: ScreeningCriterion[];
-  introduction?: string;
-  methodology?: string;
+  additionalResources: string[];
+  disclaimer: string;
 }
 
 export interface DataFreshness {

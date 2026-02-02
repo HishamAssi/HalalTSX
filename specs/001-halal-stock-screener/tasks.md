@@ -184,18 +184,18 @@
 
 ### Backend Implementation for US4
 
-- [ ] T085 [P] [US4] Create ScreeningCriterionDto for education content in backend/src/main/java/com/halaltsx/dto/ScreeningCriterionDto.java
-- [ ] T086 [P] [US4] Create EducationResponse with criteria list in backend/src/main/java/com/halaltsx/dto/EducationResponse.java
-- [ ] T087 [US4] Create EducationController with GET /education/criteria endpoint in backend/src/main/java/com/halaltsx/controller/EducationController.java
-- [ ] T088 [US4] Create EducationService with screening criteria content in backend/src/main/java/com/halaltsx/service/EducationService.java
+- [x] T085 [P] [US4] Create ScreeningCriterionDto for education content in backend/src/main/java/com/halaltsx/dto/ScreeningCriterionDto.java
+- [x] T086 [P] [US4] Create EducationResponse with criteria list in backend/src/main/java/com/halaltsx/dto/EducationResponse.java
+- [x] T087 [US4] Create EducationController with GET /education/criteria endpoint in backend/src/main/java/com/halaltsx/controller/EducationController.java
+- [x] T088 [US4] Create EducationService with screening criteria content in backend/src/main/java/com/halaltsx/service/EducationService.java
 
 ### Frontend Implementation for US4
 
-- [ ] T089 [P] [US4] Create useEducation hook in frontend/src/hooks/useEducation.ts
-- [ ] T090 [US4] Create CriterionExplanation component in frontend/src/components/Education/CriterionExplanation.tsx
-- [ ] T091 [US4] Create EducationPage with all criteria explanations in frontend/src/pages/EducationPage.tsx
-- [ ] T092 [US4] Add navigation link to EducationPage in Layout component
-- [ ] T093 [US4] Add contextual help links from ComplianceBreakdown to specific criteria explanations
+- [x] T089 [P] [US4] Create useEducation hook in frontend/src/hooks/useEducation.ts
+- [x] T090 [US4] Create CriterionExplanation component in frontend/src/components/Education/CriterionExplanation.tsx
+- [x] T091 [US4] Create EducationPage with all criteria explanations in frontend/src/pages/EducationPage.tsx
+- [x] T092 [US4] Add navigation link to EducationPage in Layout component
+- [x] T093 [US4] Add contextual help links from ComplianceBreakdown to specific criteria explanations
 
 **Checkpoint**: User can access and understand all Halal screening criteria with rationale
 
