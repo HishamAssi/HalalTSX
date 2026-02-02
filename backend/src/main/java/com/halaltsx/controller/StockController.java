@@ -1,8 +1,11 @@
 package com.halaltsx.controller;
 
+import com.halaltsx.dto.PriceHistoryResponse;
 import com.halaltsx.dto.SectorListResponse;
+import com.halaltsx.dto.StockDetailDto;
 import com.halaltsx.dto.StockDto;
 import com.halaltsx.dto.StockListResponse;
+import com.halaltsx.service.PriceHistoryService;
 import com.halaltsx.service.StockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class StockController {
 
     private final StockService stockService;
+    private final PriceHistoryService priceHistoryService;
 
     @GetMapping
     @Operation(summary = "List all stocks", description = "Returns a paginated list of TSX stocks with basic information and compliance status")
@@ -58,13 +62,26 @@ public class StockController {
     }
 
     @GetMapping("/{symbol}")
-    @Operation(summary = "Get stock details", description = "Returns detailed information about a specific stock")
-    public ResponseEntity<StockDto> getStockBySymbol(
+    @Operation(summary = "Get stock details", description = "Returns detailed information about a specific stock including compliance breakdown")
+    public ResponseEntity<StockDetailDto> getStockBySymbol(
             @Parameter(description = "Stock ticker symbol (e.g., 'RY.TO')")
             @PathVariable String symbol) {
 
-        StockDto stock = stockService.getStockBySymbol(symbol.toUpperCase());
+        StockDetailDto stock = stockService.getStockDetail(symbol.toUpperCase());
         return ResponseEntity.ok(stock);
+    }
+
+    @GetMapping("/{symbol}/price-history")
+    @Operation(summary = "Get price history", description = "Returns historical price data for a stock")
+    public ResponseEntity<PriceHistoryResponse> getPriceHistory(
+            @Parameter(description = "Stock ticker symbol (e.g., 'RY.TO')")
+            @PathVariable String symbol,
+
+            @Parameter(description = "Time period: 1W, 1M, 3M, 6M, 1Y, 5Y, MAX")
+            @RequestParam(required = false, defaultValue = "1Y") String period) {
+
+        PriceHistoryResponse response = priceHistoryService.getPriceHistory(symbol.toUpperCase(), period);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/sectors")

@@ -61,7 +61,7 @@ export interface PricePoint {
   volume?: number;
 }
 
-export type PriceHistoryPeriod = '1M' | '3M' | '6M' | '1Y' | '5Y';
+export type PriceHistoryPeriod = '1W' | '1M' | '3M' | '6M' | '1Y' | '5Y' | 'MAX';
 
 // Sector types
 export interface Sector {
@@ -72,11 +72,15 @@ export interface Sector {
 
 // Education types
 export interface ScreeningCriterion {
+  id: string;
   name: string;
   description: string;
-  threshold?: string;
-  rationale?: string;
-  calculation?: string;
+  threshold: string;
+  thresholdValue?: number | null;
+  rationale: string;
+  category: string;
+  source: string;
+  displayOrder: number;
 }
 
 // API Response types
@@ -90,14 +94,57 @@ export interface StockListResponse {
 }
 
 export interface StockDetailResponse {
-  stock: StockDetail;
+  id: number;
+  symbol: string;
+  name: string;
+  sector?: string;
+  exchange?: string;
+  description?: string;
+  currentPrice?: number;
+  priceChange?: number;
+  priceChangePercent?: number;
+  dayHigh?: number;
+  dayLow?: number;
+  weekHigh52?: number;
+  weekLow52?: number;
+  previousClose?: number;
+  volume?: number;
+  marketCap?: number;
+  complianceStatus: ComplianceStatus;
+  requiresPurification?: boolean;
+  purificationPercentage?: number;
+  compliance?: ComplianceBreakdown;
+  priceUpdatedAt?: string;
+  complianceScreenedAt?: string;
   dataFreshness?: DataFreshness;
+}
+
+export interface ComplianceBreakdown {
+  status: ComplianceStatus;
+  isCompliant: boolean;
+  requiresPurification?: boolean;
+  purificationPercentage?: number;
+  screenedAt?: string;
+  criteria: ComplianceCriterionDetail[];
+}
+
+export interface ComplianceCriterionDetail {
+  name: string;
+  description: string;
+  passed: boolean;
+  threshold: string;
+  currentValue: string;
+  reason?: string;
 }
 
 export interface PriceHistoryResponse {
   symbol: string;
   period: string;
+  startDate?: string;
+  endDate?: string;
+  dataPoints: number;
   prices: PricePoint[];
+  dataFreshness?: DataFreshness;
 }
 
 export interface ComplianceDetailResponse {
@@ -109,9 +156,11 @@ export interface SectorListResponse {
 }
 
 export interface EducationResponse {
+  title: string;
+  introduction: string;
   criteria: ScreeningCriterion[];
-  introduction?: string;
-  methodology?: string;
+  additionalResources: string[];
+  disclaimer: string;
 }
 
 export interface DataFreshness {

@@ -149,28 +149,28 @@
 
 ### Backend Implementation for US3
 
-- [ ] T067 [P] [US3] Create StockDetailDto with full compliance info in backend/src/main/java/com/halaltsx/dto/StockDetailDto.java
-- [ ] T068 [P] [US3] Create ComplianceDto with criteria breakdown in backend/src/main/java/com/halaltsx/dto/ComplianceDto.java
-- [ ] T069 [P] [US3] Create ComplianceCriterionDto for individual criteria in backend/src/main/java/com/halaltsx/dto/ComplianceCriterionDto.java
-- [ ] T070 [P] [US3] Create PricePointDto for chart data in backend/src/main/java/com/halaltsx/dto/PricePointDto.java
-- [ ] T071 [P] [US3] Create PriceHistoryResponse in backend/src/main/java/com/halaltsx/dto/PriceHistoryResponse.java
-- [ ] T072 [US3] Create PriceHistoryService for historical data in backend/src/main/java/com/halaltsx/service/PriceHistoryService.java
-- [ ] T073 [US3] Add GET /stocks/{symbol} endpoint to StockController for stock details
-- [ ] T074 [US3] Add GET /stocks/{symbol}/price-history endpoint to StockController
-- [ ] T075 [US3] Add GET /stocks/{symbol}/compliance endpoint to ComplianceController in backend/src/main/java/com/halaltsx/controller/ComplianceController.java
+- [x] T067 [P] [US3] Create StockDetailDto with full compliance info in backend/src/main/java/com/halaltsx/dto/StockDetailDto.java
+- [x] T068 [P] [US3] Create ComplianceDto with criteria breakdown in backend/src/main/java/com/halaltsx/dto/ComplianceDto.java
+- [x] T069 [P] [US3] Create ComplianceCriterionDto for individual criteria in backend/src/main/java/com/halaltsx/dto/ComplianceCriterionDto.java
+- [x] T070 [P] [US3] Create PricePointDto for chart data in backend/src/main/java/com/halaltsx/dto/PricePointDto.java
+- [x] T071 [P] [US3] Create PriceHistoryResponse in backend/src/main/java/com/halaltsx/dto/PriceHistoryResponse.java
+- [x] T072 [US3] Create PriceHistoryService for historical data in backend/src/main/java/com/halaltsx/service/PriceHistoryService.java
+- [x] T073 [US3] Add GET /stocks/{symbol} endpoint to StockController for stock details
+- [x] T074 [US3] Add GET /stocks/{symbol}/price-history endpoint to StockController
+- [x] T075 [US3] Add GET /stocks/{symbol}/compliance endpoint to ComplianceController in backend/src/main/java/com/halaltsx/controller/ComplianceController.java
 
 ### Frontend Implementation for US3
 
-- [ ] T076 [P] [US3] Create useStockDetail hook in frontend/src/hooks/useStockDetail.ts
-- [ ] T077 [P] [US3] Create usePriceHistory hook in frontend/src/hooks/usePriceHistory.ts
-- [ ] T078 [US3] Create PriceChart component using recharts in frontend/src/components/PriceChart/PriceChart.tsx
-- [ ] T079 [US3] Create ComplianceBreakdown component in frontend/src/components/ComplianceBreakdown/ComplianceBreakdown.tsx
-- [ ] T080 [US3] Create ComplianceCriterion component for individual criteria display in frontend/src/components/ComplianceBreakdown/ComplianceCriterion.tsx
-- [ ] T081 [US3] Create StockDetail component with all info sections in frontend/src/components/StockDetail/StockDetail.tsx
-- [ ] T082 [US3] Create StockDetailPage with routing in frontend/src/pages/StockDetailPage.tsx
-- [ ] T083 [US3] Add purification indicator to ComplianceBreakdown when required
-- [ ] T084 [US3] Add navigation from StockCard to StockDetailPage
-- [ ] T084.1 [US3] Add data freshness indicator and staleness warning to StockDetailPage
+- [x] T076 [P] [US3] Create useStockDetail hook in frontend/src/hooks/useStockDetail.ts
+- [x] T077 [P] [US3] Create usePriceHistory hook in frontend/src/hooks/usePriceHistory.ts
+- [x] T078 [US3] Create PriceChart component using recharts in frontend/src/components/PriceChart/PriceChart.tsx
+- [x] T079 [US3] Create ComplianceBreakdown component in frontend/src/components/ComplianceBreakdown/ComplianceBreakdown.tsx
+- [x] T080 [US3] Create ComplianceCriterion component for individual criteria display in frontend/src/components/ComplianceBreakdown/ComplianceCriterion.tsx
+- [x] T081 [US3] Create StockDetail component with all info sections in frontend/src/components/StockDetail/StockDetail.tsx
+- [x] T082 [US3] Create StockDetailPage with routing in frontend/src/pages/StockDetailPage.tsx
+- [x] T083 [US3] Add purification indicator to ComplianceBreakdown when required
+- [x] T084 [US3] Add navigation from StockCard to StockDetailPage
+- [x] T084.1 [US3] Add data freshness indicator and staleness warning to StockDetailPage
 
 **Checkpoint**: User can view detailed stock information with price chart and full compliance breakdown
 
@@ -184,18 +184,18 @@
 
 ### Backend Implementation for US4
 
-- [ ] T085 [P] [US4] Create ScreeningCriterionDto for education content in backend/src/main/java/com/halaltsx/dto/ScreeningCriterionDto.java
-- [ ] T086 [P] [US4] Create EducationResponse with criteria list in backend/src/main/java/com/halaltsx/dto/EducationResponse.java
-- [ ] T087 [US4] Create EducationController with GET /education/criteria endpoint in backend/src/main/java/com/halaltsx/controller/EducationController.java
-- [ ] T088 [US4] Create EducationService with screening criteria content in backend/src/main/java/com/halaltsx/service/EducationService.java
+- [x] T085 [P] [US4] Create ScreeningCriterionDto for education content in backend/src/main/java/com/halaltsx/dto/ScreeningCriterionDto.java
+- [x] T086 [P] [US4] Create EducationResponse with criteria list in backend/src/main/java/com/halaltsx/dto/EducationResponse.java
+- [x] T087 [US4] Create EducationController with GET /education/criteria endpoint in backend/src/main/java/com/halaltsx/controller/EducationController.java
+- [x] T088 [US4] Create EducationService with screening criteria content in backend/src/main/java/com/halaltsx/service/EducationService.java
 
 ### Frontend Implementation for US4
 
-- [ ] T089 [P] [US4] Create useEducation hook in frontend/src/hooks/useEducation.ts
-- [ ] T090 [US4] Create CriterionExplanation component in frontend/src/components/Education/CriterionExplanation.tsx
-- [ ] T091 [US4] Create EducationPage with all criteria explanations in frontend/src/pages/EducationPage.tsx
-- [ ] T092 [US4] Add navigation link to EducationPage in Layout component
-- [ ] T093 [US4] Add contextual help links from ComplianceBreakdown to specific criteria explanations
+- [x] T089 [P] [US4] Create useEducation hook in frontend/src/hooks/useEducation.ts
+- [x] T090 [US4] Create CriterionExplanation component in frontend/src/components/Education/CriterionExplanation.tsx
+- [x] T091 [US4] Create EducationPage with all criteria explanations in frontend/src/pages/EducationPage.tsx
+- [x] T092 [US4] Add navigation link to EducationPage in Layout component
+- [x] T093 [US4] Add contextual help links from ComplianceBreakdown to specific criteria explanations
 
 **Checkpoint**: User can access and understand all Halal screening criteria with rationale
 
