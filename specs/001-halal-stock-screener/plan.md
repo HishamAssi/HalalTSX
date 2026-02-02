@@ -23,12 +23,13 @@ Build a web application for Muslim investors to view, filter, and analyze Halal-
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**Note**: Constitution file contains only placeholders. No specific gates defined.
-Proceeding with standard software engineering best practices:
-- ✅ Clear separation of concerns (frontend/backend)
-- ✅ Test coverage for critical business logic (compliance calculations)
-- ✅ API contracts defined before implementation
-- ✅ Data model documented
+Verified against HalalTSX Constitution v1.0.0:
+
+- ✅ **Principle I (Shariah Compliance Accuracy)**: AAOIFI SS 21 thresholds implemented (33% debt, 33% liquidity, 5% income)
+- ✅ **Principle II (Data Transparency)**: Price timestamps, compliance screening dates, and data freshness indicators included
+- ✅ **Principle III (Test Coverage)**: Unit tests for compliance calculations, E2E tests with Playwright (38 tests passing)
+- ✅ **Principle IV (API-First Design)**: OpenAPI/Swagger documentation, RESTful endpoints with versioning (/api/v1)
+- ✅ **Principle V (Graceful Degradation)**: Cached data fallback, sample data generation when real data unavailable
 
 ## Project Structure
 
