@@ -94,6 +94,24 @@ As an active investor, I want to set price alerts for stocks I'm interested in s
 
 ---
 
+### User Story 6 - Switch Between Test Data and Full-Scale Data (Priority: P2)
+
+As a developer or power user, I want to switch between a test dataset (subset of ~39 stocks) and full-scale production data (all TSX stocks) so that I can evaluate how the application performs at scale and validate that the UI handles larger datasets correctly.
+
+**Why this priority**: Testing with realistic data volume is essential before production deployment. The current 39-stock test set may hide performance issues, pagination bugs, or UX problems that only surface with hundreds of stocks. This enables proper load testing and user acceptance testing.
+
+**Independent Test**: Can be fully tested by accessing a data mode toggle (via settings, query parameter, or environment configuration), switching between modes, and verifying that the stock list reflects the appropriate dataset size.
+
+**Acceptance Scenarios**:
+
+1. **Given** the application is running in test mode, **When** the user views the stock list, **Then** they see approximately 39 test stocks with sample compliance data
+2. **Given** the application is running in full-scale mode, **When** the user views the stock list, **Then** they see all available TSX stocks (~500+) with real or simulated compliance data
+3. **Given** the user switches from test mode to full-scale mode, **When** the stock list reloads, **Then** the list updates to display the full TSX dataset without requiring application restart
+4. **Given** full-scale mode is active, **When** the user applies search and filter operations, **Then** performance remains acceptable (results within 10 seconds per SC-001)
+5. **Given** the application is in full-scale mode, **When** the user navigates to stock detail pages, **Then** all detail page features work correctly with the expanded dataset
+
+---
+
 ### Edge Cases
 
 - What happens when stock data is unavailable or delayed? The system displays a clear message indicating data unavailability and shows the last known price with a timestamp.
@@ -123,6 +141,8 @@ As an active investor, I want to set price alerts for stocks I'm interested in s
 - **FR-015**: System MUST clearly indicate data freshness with timestamps showing when prices were last updated
 - **FR-016**: System SHOULD allow users to set price alerts for specific stocks (optional for v1)
 - **FR-017**: System SHOULD notify users when price alert thresholds are crossed (optional for v1)
+- **FR-018**: System MUST support switching between test data mode (~39 stocks) and full-scale data mode (all TSX stocks ~500+)
+- **FR-019**: System MUST maintain acceptable performance (SC-001, SC-002) when operating in full-scale data mode
 
 ### Key Entities
 
@@ -153,3 +173,5 @@ As an active investor, I want to set price alerts for stocks I'm interested in s
 - Business activity screening will be based on industry sector classification and known prohibited business types; manual override capability may be needed for edge cases
 - Real-time pricing is subject to the limitations of the free-tier data source (may have 15-minute delay)
 - Purification percentages will be calculated based on the ratio of non-halal income to total income for stocks that fall under the 5% threshold but have some non-halal revenue
+- Data mode switching (test vs full-scale) can be controlled via environment variable, or configuration setting, depending on implementation preference
+- Full-scale data mode may require additional API rate limit considerations with Alpha Vantage or alternative data sources for complete TSX coverage

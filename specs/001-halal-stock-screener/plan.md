@@ -17,7 +17,8 @@ Build a web application for Muslim investors to view, filter, and analyze Halal-
 **Project Type**: Web application (separate frontend and backend)
 **Performance Goals**: Stock list loads within 3 seconds (SC-002), price updates within 60 seconds (SC-003), search results within 10 seconds (SC-001)
 **Constraints**: Alpha Vantage free tier rate limits (25 requests/day for free, 75/minute for premium), 15-minute delayed quotes on free tier
-**Scale/Scope**: ~500 TSX stocks, single-user or small concurrent user base initially
+**Scale/Scope**: ~500 TSX stocks (full-scale mode), ~39 stocks (test mode); single-user or small concurrent user base initially
+**Data Modes**: Application supports test mode with curated subset for development/demos, and full-scale mode for production-like testing with all TSX stocks
 
 ## Constitution Check
 
