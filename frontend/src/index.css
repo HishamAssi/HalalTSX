@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-compliant: #10b981;
+  --color-non-compliant: #ef4444;
+  --color-unable-to-verify: #f59e0b;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.compliance-compliant {
+  @apply text-green-600 bg-green-50 border-green-200;
+}
+
+.compliance-non-compliant {
+  @apply text-red-600 bg-red-50 border-red-200;
+}
+
+.compliance-unable-to-verify {
+  @apply text-amber-600 bg-amber-50 border-amber-200;
+}
