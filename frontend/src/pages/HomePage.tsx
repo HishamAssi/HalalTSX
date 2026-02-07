@@ -1,12 +1,15 @@
 import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useStocks } from '@/hooks/useStocks';
 import { useSectors } from '@/hooks/useSectors';
 import { usePriceUpdates } from '@/hooks/usePriceUpdates';
 import StockList from '@/components/StockList/StockList';
 import SearchFilter from '@/components/SearchFilter/SearchFilter';
-import { StockFilters, ComplianceStatus } from '@/types';
+import { ApiErrorFallback } from '@/components/ErrorBoundary';
+import { StockFilters, ComplianceStatus, StockListResponse } from '@/types';
 
 export default function HomePage() {
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<StockFilters>({
     page: 0,
     size: 20,
@@ -15,10 +18,13 @@ export default function HomePage() {
     sector: '',
   });
 
-  const { data, isLoading, error, isFetching } = useStocks(filters);
+  const { data, isLoading, error, isFetching, refetch } = useStocks(filters);
   const { data: sectors = [], isLoading: sectorsLoading } = useSectors();
 
   usePriceUpdates(true);
+
+  // Get cached data if API fails
+  const cachedData = queryClient.getQueryData<StockListResponse>(['stocks', filters]);
 
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
@@ -51,7 +57,11 @@ export default function HomePage() {
     filters.compliance !== 'ALL' ||
     filters.sector !== '';
 
-  if (error) {
+  // Show error with cached fallback if available
+  const showErrorWithCachedData = error && cachedData;
+  const showErrorNoData = error && !cachedData;
+
+  if (showErrorNoData) {
     return (
       <div className="text-center py-12">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
@@ -60,7 +70,7 @@ export default function HomePage() {
             Unable to load stock data. Please try again later.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => refetch()}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
           >
             Retry
@@ -94,7 +104,17 @@ export default function HomePage() {
         hasActiveFilters={hasActiveFilters}
       />
 
-      {data?.dataFreshness?.isStale && (
+      {showErrorWithCachedData && (
+        <div className="mb-6">
+          <ApiErrorFallback
+            error={error as Error}
+            onRetry={() => refetch()}
+            message="Failed to refresh stock data"
+          />
+        </div>
+      )}
+
+      {data?.dataFreshness?.isStale && !showErrorWithCachedData && (
         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
           <p className="text-amber-800 text-sm">
             {data.dataFreshness.message || 'Price data may be outdated'}
@@ -133,10 +153,10 @@ export default function HomePage() {
           )}
 
           <StockList
-            stocks={data?.content || []}
-            page={data?.page || 0}
-            totalPages={data?.totalPages || 0}
-            totalElements={data?.totalElements || 0}
+            stocks={(data || cachedData)?.content || []}
+            page={(data || cachedData)?.page || 0}
+            totalPages={(data || cachedData)?.totalPages || 0}
+            totalElements={(data || cachedData)?.totalElements || 0}
             onPageChange={handlePageChange}
           />
         </>

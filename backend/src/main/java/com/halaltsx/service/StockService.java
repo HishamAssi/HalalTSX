@@ -1,5 +1,7 @@
 package com.halaltsx.service;
 
+import com.halaltsx.config.CacheConfig;
+import com.halaltsx.config.DataModeConfig;
 import com.halaltsx.dto.DataFreshness;
 import com.halaltsx.dto.SectorDto;
 import com.halaltsx.dto.SectorListResponse;
@@ -14,6 +16,7 @@ import com.halaltsx.repository.StockRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +35,7 @@ public class StockService {
 
     private final StockRepository stockRepository;
     private final ComplianceRepository complianceRepository;
+    private final DataModeConfig dataModeConfig;
 
     @Transactional(readOnly = true)
     public StockListResponse getStocks(
@@ -54,7 +58,8 @@ public class StockService {
             }
         }
 
-        Page<Stock> stockPage = stockRepository.findWithFilters(searchParam, sectorParam, complianceStatus, pageable);
+        boolean testModeOnly = dataModeConfig.isTestMode();
+        Page<Stock> stockPage = stockRepository.findWithFiltersAndMode(testModeOnly, searchParam, sectorParam, complianceStatus, pageable);
 
         List<StockSummaryDto> stockDtos = stockPage.getContent().stream()
                 .map(stock -> {
@@ -89,6 +94,7 @@ public class StockService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConfig.STOCK_DETAIL_CACHE, key = "#symbol")
     public StockDetailDto getStockDetail(String symbol) {
         Stock stock = stockRepository.findBySymbolWithCompliance(symbol)
                 .orElseThrow(() -> new EntityNotFoundException("Stock not found: " + symbol));
@@ -102,8 +108,10 @@ public class StockService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConfig.SECTORS_CACHE)
     public SectorListResponse getSectorStats() {
-        List<Object[]> stats = stockRepository.findSectorStats();
+        boolean testModeOnly = dataModeConfig.isTestMode();
+        List<Object[]> stats = stockRepository.findSectorStatsWithMode(testModeOnly);
 
         List<SectorDto> sectors = stats.stream()
                 .map(row -> SectorDto.builder()

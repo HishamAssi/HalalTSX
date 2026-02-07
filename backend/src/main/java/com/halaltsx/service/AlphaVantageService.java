@@ -3,6 +3,8 @@ package com.halaltsx.service;
 import com.halaltsx.config.AlphaVantageConfig;
 import com.halaltsx.model.PriceHistory;
 import com.halaltsx.model.Stock;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,9 +24,13 @@ import java.util.Optional;
 @Slf4j
 public class AlphaVantageService {
 
+    private static final String ALPHA_VANTAGE_BACKEND = "alphaVantage";
+
     private final WebClient alphaVantageWebClient;
     private final AlphaVantageConfig config;
 
+    @CircuitBreaker(name = ALPHA_VANTAGE_BACKEND, fallbackMethod = "fetchStockQuoteFallback")
+    @RateLimiter(name = ALPHA_VANTAGE_BACKEND)
     public Optional<Stock> fetchStockQuote(String symbol) {
         try {
             log.info("Fetching quote for symbol: {}", symbol);
@@ -65,6 +71,8 @@ public class AlphaVantageService {
         }
     }
 
+    @CircuitBreaker(name = ALPHA_VANTAGE_BACKEND, fallbackMethod = "fetchCompanyOverviewFallback")
+    @RateLimiter(name = ALPHA_VANTAGE_BACKEND)
     public Optional<Map<String, Object>> fetchCompanyOverview(String symbol) {
         try {
             log.info("Fetching company overview for symbol: {}", symbol);
@@ -92,6 +100,8 @@ public class AlphaVantageService {
         }
     }
 
+    @CircuitBreaker(name = ALPHA_VANTAGE_BACKEND, fallbackMethod = "fetchDailyPriceHistoryFallback")
+    @RateLimiter(name = ALPHA_VANTAGE_BACKEND)
     public List<PriceHistory> fetchDailyPriceHistory(Stock stock, int days) {
         List<PriceHistory> priceHistories = new ArrayList<>();
 
@@ -152,6 +162,8 @@ public class AlphaVantageService {
         return priceHistories;
     }
 
+    @CircuitBreaker(name = ALPHA_VANTAGE_BACKEND, fallbackMethod = "fetchIncomeStatementFallback")
+    @RateLimiter(name = ALPHA_VANTAGE_BACKEND)
     public Optional<Map<String, Object>> fetchIncomeStatement(String symbol) {
         try {
             log.info("Fetching income statement for symbol: {}", symbol);
@@ -178,6 +190,8 @@ public class AlphaVantageService {
         }
     }
 
+    @CircuitBreaker(name = ALPHA_VANTAGE_BACKEND, fallbackMethod = "fetchBalanceSheetFallback")
+    @RateLimiter(name = ALPHA_VANTAGE_BACKEND)
     public Optional<Map<String, Object>> fetchBalanceSheet(String symbol) {
         try {
             log.info("Fetching balance sheet for symbol: {}", symbol);
@@ -202,5 +216,32 @@ public class AlphaVantageService {
             log.error("Error fetching balance sheet for symbol {}: {}", symbol, e.getMessage());
             return Optional.empty();
         }
+    }
+
+    // Fallback methods for circuit breaker
+    private Optional<Stock> fetchStockQuoteFallback(String symbol, Throwable t) {
+        log.warn("Circuit breaker fallback for fetchStockQuote, symbol: {}, error: {}", symbol, t.getMessage());
+        return Optional.empty();
+    }
+
+    private Optional<Map<String, Object>> fetchCompanyOverviewFallback(String symbol, Throwable t) {
+        log.warn("Circuit breaker fallback for fetchCompanyOverview, symbol: {}, error: {}", symbol, t.getMessage());
+        return Optional.empty();
+    }
+
+    private List<PriceHistory> fetchDailyPriceHistoryFallback(Stock stock, int days, Throwable t) {
+        log.warn("Circuit breaker fallback for fetchDailyPriceHistory, symbol: {}, error: {}",
+                stock.getSymbol(), t.getMessage());
+        return new ArrayList<>();
+    }
+
+    private Optional<Map<String, Object>> fetchIncomeStatementFallback(String symbol, Throwable t) {
+        log.warn("Circuit breaker fallback for fetchIncomeStatement, symbol: {}, error: {}", symbol, t.getMessage());
+        return Optional.empty();
+    }
+
+    private Optional<Map<String, Object>> fetchBalanceSheetFallback(String symbol, Throwable t) {
+        log.warn("Circuit breaker fallback for fetchBalanceSheet, symbol: {}, error: {}", symbol, t.getMessage());
+        return Optional.empty();
     }
 }

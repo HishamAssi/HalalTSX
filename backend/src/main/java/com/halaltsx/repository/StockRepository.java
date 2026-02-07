@@ -52,4 +52,30 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
             "WHERE s.isActive = true AND s.sector IS NOT NULL " +
             "GROUP BY s.sector ORDER BY s.sector")
     List<Object[]> findSectorStats();
+
+    // Data mode queries
+    @Query("SELECT COUNT(s) FROM Stock s WHERE s.isActive = true AND s.isTestData = true")
+    long countTestModeStocks();
+
+    @Query("SELECT COUNT(s) FROM Stock s WHERE s.isActive = true")
+    long countFullModeStocks();
+
+    @Query("SELECT s FROM Stock s LEFT JOIN s.complianceResult c WHERE s.isActive = true " +
+            "AND (:testModeOnly = false OR s.isTestData = true) " +
+            "AND (:search IS NULL OR :search = '' OR LOWER(s.symbol) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(s.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "AND (:sector IS NULL OR :sector = '' OR s.sector = :sector) " +
+            "AND (:compliance IS NULL OR c.screeningStatus = :compliance)")
+    Page<Stock> findWithFiltersAndMode(
+            @Param("testModeOnly") boolean testModeOnly,
+            @Param("search") String search,
+            @Param("sector") String sector,
+            @Param("compliance") ScreeningStatus compliance,
+            Pageable pageable);
+
+    @Query("SELECT s.sector, COUNT(s), SUM(CASE WHEN c.screeningStatus = 'COMPLIANT' THEN 1 ELSE 0 END) " +
+            "FROM Stock s LEFT JOIN s.complianceResult c " +
+            "WHERE s.isActive = true AND s.sector IS NOT NULL " +
+            "AND (:testModeOnly = false OR s.isTestData = true) " +
+            "GROUP BY s.sector ORDER BY s.sector")
+    List<Object[]> findSectorStatsWithMode(@Param("testModeOnly") boolean testModeOnly);
 }

@@ -10,6 +10,8 @@ import {
   StockFilters,
   PriceHistoryPeriod,
   ErrorResponse,
+  DataModeResponse,
+  DataMode,
 } from '@/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -88,6 +90,18 @@ export const educationApi = {
 export const healthApi = {
   getHealth: async (): Promise<HealthResponse> => {
     const response = await apiClient.get<HealthResponse>('/health');
+    return response.data;
+  },
+};
+
+export const configApi = {
+  getDataMode: async (): Promise<DataModeResponse> => {
+    const response = await apiClient.get<DataModeResponse>('/config/data-mode');
+    return response.data;
+  },
+
+  switchDataMode: async (mode: DataMode): Promise<DataModeResponse> => {
+    const response = await apiClient.post<DataModeResponse>('/config/data-mode', { mode });
     return response.data;
   },
 };

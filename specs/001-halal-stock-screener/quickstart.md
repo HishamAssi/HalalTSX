@@ -231,7 +231,7 @@ psql -h localhost -U halaltsx -d halaltsx -c "SELECT 1;"
 
 ### Alpha Vantage Rate Limits
 
-The free tier allows 25 API calls per day. If you hit rate limits:
+The free tier allows 25 API calls per day (5 per minute). If you hit rate limits:
 1. Check logs for "rate limit exceeded" errors
 2. Wait for daily reset (midnight ET)
 3. Consider premium API key for development

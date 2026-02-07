@@ -201,6 +201,33 @@
 
 ---
 
+## Phase 6.5: User Story 6 - Switch Between Test and Full-Scale Data (Priority: P2)
+
+**Goal**: Enable switching between test dataset (~39 stocks) and full-scale production data (all TSX stocks ~500+) to evaluate application performance at scale
+
+**Independent Test**: Access data mode toggle, switch between modes, verify stock list reflects appropriate dataset size without restart
+
+### Backend Implementation for US6
+
+- [x] T120 [P] [US6] Create DataModeConfig for environment-based mode switching in backend/src/main/java/com/halaltsx/config/DataModeConfig.java
+- [x] T121 [P] [US6] Create DataModeDto for API response in backend/src/main/java/com/halaltsx/dto/DataModeDto.java
+- [x] T122 [US6] Create DataModeService for mode management in backend/src/main/java/com/halaltsx/service/DataModeService.java
+- [x] T123 [US6] Add GET /config/data-mode endpoint to return current mode (ConfigController)
+- [x] T124 [US6] Create Flyway migrations V3 and V4 for test data flag and full TSX stocks (~150+ additional)
+- [x] T125 [US6] Update StockRepository to filter by data mode (test vs full-scale)
+- [x] T126 [US6] Update StockService to respect data mode configuration
+
+### Frontend Implementation for US6
+
+- [x] T127 [P] [US6] Create useDataMode hook in frontend/src/hooks/useDataMode.ts
+- [x] T128 [US6] Create DataModeIndicator component in frontend/src/components/DataMode/DataModeIndicator.tsx
+- [x] T129 [US6] Add data mode indicator to Layout header showing current mode and stock count
+- [x] T130 [US6] Update HomePage to display data mode status and total available stocks (via DataModeIndicator)
+
+**Checkpoint**: Application can switch between test (~39 stocks) and full-scale (~500 stocks) modes
+
+---
+
 ## Phase 7: User Story 5 - Set Price Alerts (Priority: P5 - Optional)
 
 **Goal**: Allow users to set price alerts and receive notifications when thresholds are crossed
@@ -217,7 +244,7 @@
 - [ ] T097 [US5] Create PriceAlertService with CRUD operations in backend/src/main/java/com/halaltsx/service/PriceAlertService.java
 - [ ] T098 [US5] Add alert trigger logic to PriceUpdateService
 - [ ] T099 [US5] Create PriceAlertController with CRUD endpoints in backend/src/main/java/com/halaltsx/controller/PriceAlertController.java
-- [ ] T100 [US5] Add Flyway migration for price_alerts table in backend/src/main/resources/db/migration/V3__price_alerts.sql
+- [ ] T100 [US5] Add Flyway migration for price_alerts table in backend/src/main/resources/db/migration/V5__price_alerts.sql
 
 ### Frontend Implementation for US5 (Optional)
 
@@ -236,19 +263,64 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T107 [P] Add Swagger/OpenAPI documentation to Spring Boot in backend/src/main/java/com/halaltsx/config/SwaggerConfig.java
-- [ ] T108 [P] Add request logging middleware in backend
-- [ ] T109 [P] Implement circuit breaker for Alpha Vantage calls using Resilience4j
-- [ ] T110 [P] Add application-level caching for stock data using Spring Cache
-- [ ] T111 [P] Add rate limiting for API endpoints
-- [ ] T112 Create loading skeletons for frontend components
-- [ ] T113 Add error boundary component for frontend error handling
-- [ ] T114 Implement responsive design for mobile viewports
-- [ ] T115 Add data staleness indicator to all price displays
-- [ ] T116 Run quickstart.md validation to ensure setup documentation is accurate
-- [ ] T117 [P] Create CacheConfig with Spring Cache for stock data TTL management in backend/src/main/java/com/halaltsx/config/CacheConfig.java
-- [ ] T118 Add fallback UI state to HomePage for API errors showing cached data with warning banner
-- [ ] T119 Ensure all stock-related API endpoints include DataFreshness metadata in responses
+- [x] T107 [P] Add Swagger/OpenAPI documentation to Spring Boot in backend/src/main/java/com/halaltsx/config/SwaggerConfig.java
+- [x] T108 [P] Add request logging middleware in backend
+- [x] T109 [P] Implement circuit breaker for Alpha Vantage calls using Resilience4j
+- [x] T110 [P] Add application-level caching for stock data using Spring Cache
+- [x] T111 [P] Add rate limiting for API endpoints
+- [x] T112 Create loading skeletons for frontend components
+- [x] T113 Add error boundary component for frontend error handling
+- [x] T114 Implement responsive design for mobile viewports
+- [x] T115 Add data staleness indicator to all price displays
+- [x] T116 Run quickstart.md validation to ensure setup documentation is accurate
+- [x] T117 [P] Create CacheConfig with Spring Cache for stock data TTL management in backend/src/main/java/com/halaltsx/config/CacheConfig.java
+- [x] T118 Add fallback UI state to HomePage for API errors showing cached data with warning banner
+- [x] T119 Ensure all stock-related API endpoints include DataFreshness metadata in responses
+
+---
+
+## Phase 9: Test Coverage (Constitution Principle III)
+
+**Purpose**: Ensure comprehensive test coverage for all Halal compliance calculations per Constitution Principle III
+
+**⚠️ CONSTITUTION REQUIREMENT**: All compliance calculation code MUST have comprehensive test coverage
+
+### Backend Unit Tests
+
+- [x] T131 [P] Create ComplianceServiceTest with unit tests for business activity screening in backend/src/test/java/com/halaltsx/service/ComplianceServiceTest.java
+- [x] T132 [P] Add unit tests for debt ratio calculation including boundary conditions (exactly 33%)
+- [x] T133 [P] Add unit tests for liquidity ratio calculation including boundary conditions (exactly 33%)
+- [x] T134 [P] Add unit tests for income ratio calculation including boundary conditions (exactly 5%)
+- [x] T135 [P] Add unit tests for purification percentage calculation
+- [x] T136 Create StockServiceTest for stock retrieval and data mode filtering in backend/src/test/java/com/halaltsx/service/StockServiceTest.java
+
+### Backend Integration Tests
+
+- [ ] T137 Create StockControllerIntegrationTest for API endpoints in backend/src/test/java/com/halaltsx/integration/StockControllerIntegrationTest.java
+- [ ] T138 Create ComplianceControllerIntegrationTest for compliance API in backend/src/test/java/com/halaltsx/integration/ComplianceControllerIntegrationTest.java
+- [ ] T139 Add integration test for complete screening pipeline (stock → financials → compliance result)
+
+### Frontend Unit Tests
+
+- [x] T140 [P] Create ComplianceIndicator.test.tsx with tests for all status states
+- [ ] T141 [P] Create ComplianceBreakdown.test.tsx with tests for criteria display
+- [x] T142 [P] Create StockCard.test.tsx with tests for price and compliance display
+- [ ] T143 Create useStocks.test.ts for hook behavior and filter parameters
+
+### E2E Tests
+
+- [x] T144 Create E2E test: User views stock list and sees compliance indicators (US1)
+- [x] T145 Create E2E test: User searches and filters stocks (US2)
+- [x] T146 Create E2E test: User views stock detail with compliance breakdown (US3)
+- [x] T147 Create E2E test: User accesses education page and views criteria explanations (US4)
+- [ ] T148 Create E2E test: User switches data mode and sees updated stock count (US6)
+
+### Performance Tests
+
+- [ ] T149 Create performance test for SC-001: Search returns results within 10 seconds
+- [ ] T150 Create performance test for SC-002: Stock list loads within 3 seconds
+
+**Checkpoint**: All compliance calculations have unit test coverage, integration tests verify API behavior, E2E tests validate user journeys
 
 ---
 
@@ -270,6 +342,7 @@
 - **User Story 3 (P3)**: Can start after Foundational - Uses compliance logic from US1 but adds detail view
 - **User Story 4 (P4)**: Can start after Foundational - Completely independent educational content
 - **User Story 5 (P5)**: Can start after Foundational - Optional, independent alerts feature
+- **User Story 6 (P2)**: Can start after Foundational - Extends stock list with data mode switching; requires US1 stock list to be functional
 
 ### Within Each User Story
 
@@ -355,9 +428,11 @@ With multiple developers after Foundational phase completes:
 | Phase 4: US2 Search/Filter | P2 | 14 | 5 |
 | Phase 5: US3 Stock Details | P3 | 19 | 7 |
 | Phase 6: US4 Education | P4 | 9 | 3 |
+| Phase 6.5: US6 Data Mode | P2 | 11 | 3 |
 | Phase 7: US5 Alerts (Optional) | P5 | 13 | 4 |
 | Phase 8: Polish | - | 13 | 6 |
-| **Total** | | **120** | **55** |
+| Phase 9: Test Coverage | - | 20 | 8 |
+| **Total** | | **151** | **66** |
 
 **Suggested MVP Scope**: Complete Phase 1, 2, and 3 (User Story 1) for a functional Halal stock list viewer with 52 tasks.
 

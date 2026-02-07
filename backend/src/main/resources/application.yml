@@ -23,7 +23,9 @@ spring:
     baseline-on-migrate: true
 
   cache:
-    type: simple
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=300s
 
 server:
   port: 8080
@@ -35,6 +37,13 @@ alphavantage:
   base-url: https://www.alphavantage.co/query
   rate-limit:
     requests-per-minute: 5
+
+app:
+  data-mode:
+    mode: ${DATA_MODE:test}
+    allow-runtime-switch: ${DATA_MODE_ALLOW_SWITCH:true}
+  rate-limit:
+    requests-per-minute: ${RATE_LIMIT_PER_MINUTE:100}
 
 management:
   endpoints:
@@ -51,8 +60,28 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      alphaVantage:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  ratelimiter:
+    instances:
+      alphaVantage:
+        limitForPeriod: 5
+        limitRefreshPeriod: 60s
+        timeoutDuration: 5s
+
 logging:
   level:
     com.halaltsx: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: WARN
+    io.github.resilience4j: INFO

@@ -36,4 +36,11 @@ public interface ComplianceRepository extends JpaRepository<ComplianceResult, Lo
 
     @Query("SELECT COUNT(c) FROM ComplianceResult c WHERE c.screeningStatus = :status")
     long countByScreeningStatus(@Param("status") ComplianceResult.ScreeningStatus status);
+
+    // Data mode queries
+    @Query("SELECT COUNT(c) FROM ComplianceResult c WHERE c.isCompliant = true AND c.stock.isTestData = true AND c.stock.isActive = true")
+    long countCompliantTestMode();
+
+    @Query("SELECT COUNT(c) FROM ComplianceResult c WHERE c.isCompliant = true AND c.stock.isActive = true")
+    long countCompliantFullMode();
 }

@@ -46,6 +46,10 @@ public class Stock {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "is_test_data")
+    @Builder.Default
+    private Boolean isTestData = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

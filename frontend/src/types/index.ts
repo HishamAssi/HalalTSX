@@ -195,3 +195,15 @@ export interface StockFilters {
   page?: number;
   size?: number;
 }
+
+// Data mode types
+export type DataMode = 'test' | 'full';
+
+export interface DataModeResponse {
+  mode: DataMode;
+  displayName: string;
+  stockCount: number;
+  compliantCount: number;
+  allowRuntimeSwitch: boolean;
+  description: string;
+}
